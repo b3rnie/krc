@@ -34,6 +34,7 @@
         , encode/1
         , encode_index/1
 	, encode_key/1
+        , from_riak_obj/1
         , from_riakc_obj/1
         , to_riakc_obj/1
         ]).
@@ -125,6 +126,14 @@ is_idx(_)                    -> false.
 to_riakc_obj(#krc_obj{bucket=B, key=K, indices=I, val=V, vclock=C}) ->
   riakc_obj:new_obj(encode_key(B), encode_key(K), C, [{encode_indices(I), encode(V)}]).
 
+from_riak_obj(Obj) ->
+  riak_object:ensure_robject(Obj),
+  Contents = riak_object:get_contents(Obj),
+  #krc_obj{ bucket  = decode_key(riak_object:bucket(Obj))
+          , key     = decode_key(riak_object:key(Obj))
+          , val     = [decode(V) || {_, V} <- Contents]
+          , indices = [decode_indices(MD) || {MD, _} <- riak_object:get_metadatas()]
+          , vclock  = riak_object:vclock(Obj)}.
 
 -spec from_riakc_obj(riakc_obj()) -> ect() | no_return().
 %% Siblings need to be resolved separately.
@@ -137,7 +146,6 @@ from_riakc_obj(Obj) ->
           , indices = [decode_indices(MD) || {MD, _} <- Contents]
           , vclock  = riakc_obj:vclock(Obj) %opaque
           }.
-
 
 %% We're only interested in index-metadata.
 -spec encode_indices(indices()) -> dict().

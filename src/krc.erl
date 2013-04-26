@@ -327,18 +327,6 @@ range_index_test() ->
     {ok, []}     = get_index(krc_server, B, I, {range, 21, 30})
   end).
 
-mapred_test() ->
-  krc_test:with_pb(1, fun(Inputs) ->
-			  {ok, Res} = mapred(krc_server,
-					     [{b1,k1},
-					      {b2,k2}],
-					     [{map, {qfun, Count}, none, false},
-					      {reduce, {qfun, Merge}, none, true}
-					     ]),
-
-    ok
-  end).
-
 conflict_ok_test() ->
   krc_test:with_pb(2, fun(Inputs) ->
     [ {B, K, _, _, V1}

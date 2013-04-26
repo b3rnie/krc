@@ -83,6 +83,7 @@
 	, get_bucket/2
         , get_index/4
         , get_index/5
+	, mapred/3
         , put/2
 	, set_bucket/3
         ]).
@@ -127,6 +128,7 @@ get(GS, B, K)             -> call(GS, {get,       [B, K]   }).
 get_bucket(GS, B)         -> call(GS, {get_bucket,[B]      }).
 get_index(GS, B, I, K)    -> call(GS, {get_index, [B, I, K]}).
 get_index(GS, B, I, L, U) -> call(GS, {get_index, [B, I, L, U]}).
+mapred(GS, I, Q)          -> call(GS, {mapred,    [I, Q]}).
 put(GS, O)                -> call(GS, {put,       [O]      }).
 set_bucket(GS, B, P)      -> call(GS, {set_bucket,[B, P]}).
 

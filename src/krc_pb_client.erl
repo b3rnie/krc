@@ -106,10 +106,11 @@ mapred(Pid, Input0, Query0, Timeout) ->
   Input = mapred_input(Input0),
   Query = mapred_query(Query0),
 
-  case riakc_ob_socket:mapred(Pid,
+  case riakc_pb_socket:mapred(Pid,
 			      Input,
 			      Query,
-			      Timeout, infinity) %gen_server call
+			      Timeout,
+			      infinity) %gen_server call
   of
     {ok, _} = Res    -> Res;
     {error, _} = Err -> Err
@@ -143,8 +144,8 @@ start_link(IP, Port, Options) ->
 %% krc uses krc_obj's and encoded buckets and keys.
 mapred_input(Input) ->
   lists:map(
-    fun({{B, K}, D}) -> {{krc_obj:encode(B), krc_obj:encode(K)}, D};
-       ({B, K})      -> {krc_obj:encode(B), krc_obj:encode(K)}
+    fun({{B, K}, D}) -> {{krc_obj:encode_key(B), krc_obj:encode_key(K)}, D};
+       ({B, K})      -> {krc_obj:encode_key(B), krc_obj:encode_key(K)}
     end, Input).
 
 mapred_query(Query) ->
@@ -156,11 +157,11 @@ mapred_query(Query) ->
 
 rewrite_funterm({modfun, M, F}) ->
   fun(Obj, KeyData, Arg) ->
-      M:F(krc_obj:from_riakc_obj(Obj), KeyData, Arg)
+      M:F(krc_obj:from_riak_obj(Obj), KeyData, Arg)
   end;
 rewrite_funterm({qfun, F}) ->
   fun(Obj, KeyData, Arg) ->
-      F(krc_obj:from_riakc_obj(Obj), KeyData, Arg)
+      F(krc_obj:from_riak_obj(Obj), KeyData, Arg)
   end.
 
 %%%_* Tests ============================================================
