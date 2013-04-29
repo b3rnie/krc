@@ -107,7 +107,7 @@ compose_test() ->
 
 policy_test() ->
   Policy = [krc_resolver_eq, krc_resolver_tombstone] ++
-    krc_policy_default:lookup(foo, bar),
+    krc_policy_default:lookup(foo),
   R = compose(Policy),
   {ok, 42} = R(42, 42),
   {error, {conflict, 42, 43, [nomatch, no_tombstone, defaulty]}} = R(42, 43).

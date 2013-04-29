@@ -33,6 +33,7 @@
         , get_index/5
         , get_index_keys/4
 	, mapred/3
+        , mapred/4
         , put/2
         , put_index/3
 	, set_bucket/3
@@ -83,7 +84,7 @@ delete(S, B, K) -> krc_server:delete(S, B, K).
 get(S, B, K) ->
   get(S, B, K, krc_policy_default).
 get(S, B, K, Policy) when is_atom(Policy) ->
-  get(S, B, K, krc_resolver:compose(Policy:lookup(B, K)));
+  get(S, B, K, krc_resolver:compose(Policy:lookup(B)));
 get(S, B, K, F) when is_function(F) ->
   get_loop(S, B, K, F).
 
@@ -136,7 +137,11 @@ get_index_keys(S, B, I, K) ->
 -spec mapred(server(), mapred_input(), mapred_query()) -> maybe([term()], _).
 %% @ doc mapred over bucket-key list I with query Q.
 mapred(S, I, Q) ->
-  krc_server:mapred(S, I, Q).
+  mapred(S, I, Q, krc_policy_default).
+mapred(S, I, Q, Strat) when is_atom(Strat)
+                          ; is_function(Strat) ->
+  krc_server:mapred(
+    S, krc_mapred:encode_input(I), krc_mapred:encode_query(Q, Strat)).
 
 -spec put(server(), obj()) -> whynot(_).
 %% @doc Store O.

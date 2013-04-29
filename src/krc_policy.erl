@@ -11,10 +11,10 @@
         ]).
 
 %%%_* Code =============================================================
-%%-callback lookup(_, _) -> [krc_resolver:resolver() |
-%%                           krc_resolver:resolution_procedure()].
+%%-callback lookup(_) -> [krc_resolver:resolver() |
+%%                        krc_resolver:resolution_procedure()].
 behaviour_info(callbacks) ->
-  [ {lookup, 2}
+  [ {lookup, 1}
   ];
 behaviour_info(_) -> undefined.
 
