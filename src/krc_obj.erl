@@ -132,7 +132,7 @@ from_riak_obj(Obj) ->
   #krc_obj{ bucket  = decode_key(riak_object:bucket(Obj))
           , key     = decode_key(riak_object:key(Obj))
           , val     = [decode(V) || {_, V} <- Contents]
-          , indices = [decode_indices(MD) || {MD, _} <- riak_object:get_metadatas()]
+          , indices = [decode_indices(MD) || {MD, _} <- Contents]
           , vclock  = riak_object:vclock(Obj)}.
 
 -spec from_riakc_obj(riakc_obj()) -> ect() | no_return().
