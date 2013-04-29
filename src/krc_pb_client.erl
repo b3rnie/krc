@@ -102,10 +102,7 @@ get_index(Pid, Bucket, Index, Lower, Upper, Timeout) ->
     {error, _} = Err -> Err
   end.
 
-mapred(Pid, Input0, Query0, Timeout) ->
-  Input = mapred_input(Input0),
-  Query = mapred_query(Query0),
-
+mapred(Pid, Input, Query, Timeout) ->
   case riakc_pb_socket:mapred(Pid,
 			      Input,
 			      Query,
@@ -138,31 +135,6 @@ start_link(IP, Port, Options) ->
   {ok, Pid} = riakc_pb_socket:start_link(IP, Port, Options),
   pong      = riakc_pb_socket:ping(Pid), %ensure server actually reachable
   {ok, Pid}.
-
-
-%%%_ * Mapred transformation -------------------------------------------
-%% krc uses krc_obj's and encoded buckets and keys.
-mapred_input(Input) ->
-  lists:map(
-    fun({{B, K}, D}) -> {{krc_obj:encode_key(B), krc_obj:encode_key(K)}, D};
-       ({B, K})      -> {krc_obj:encode_key(B), krc_obj:encode_key(K)}
-    end, Input).
-
-mapred_query(Query) ->
-  lists:map(fun({map, FunTerm, Arg, Keep}) ->
-		{map, {qfun, rewrite_funterm(FunTerm)}, Arg, Keep};
-	       ({reduce, FunTerm, Arg, Keep}) ->
-		{reduce, FunTerm, Arg, Keep}
-	    end, Query).
-
-rewrite_funterm({modfun, M, F}) ->
-  fun(Obj, KeyData, Arg) ->
-      M:F(krc_obj:from_riak_obj(Obj), KeyData, Arg)
-  end;
-rewrite_funterm({qfun, F}) ->
-  fun(Obj, KeyData, Arg) ->
-      F(krc_obj:from_riak_obj(Obj), KeyData, Arg)
-  end.
 
 %%%_* Tests ============================================================
 -ifdef(TEST).
